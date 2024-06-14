@@ -1,66 +1,169 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Ambulance API
 
-## About Laravel
+Это проект для управления системой скорой помощи. Проект предоставляет API для аутентификации пользователей, управления их профилями и других функций.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Технологии
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2
+- Laravel 10.10
+- MySQL
+- Redis
+- Laravel Passport для аутентификации
+- Swagger для документации API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Установка
 
-## Learning Laravel
+1. Клонируйте репозиторий:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+   ```bash
+   git clone https://github.com/yourusername/ambulance.git
+   cd ambulance
+   ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. Установите зависимости:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   ```bash
+   composer install
+   ```
 
-## Laravel Sponsors
+3. Скопируйте файл `.env.example` в `.env` и настройте параметры окружения:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```bash
+   cp .env.example .env
+   ```
 
-### Premium Partners
+4. Сгенерируйте ключ приложения:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+   ```bash
+   php artisan key:generate
+   ```
 
-## Contributing
+5. Запустите миграции и сиды для базы данных:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   php artisan migrate
+   ```
 
-## Code of Conduct
+6. Установите Laravel Passport и создайте ключи:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   php artisan passport:install
+   ```
 
-## Security Vulnerabilities
+## Запуск
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Запустите локальный сервер разработки:
 
-## License
+   ```bash
+   php artisan serve
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. Откройте браузер и перейдите по адресу `http://127.0.0.1:8000`.
+
+## Документация API
+
+Документация API создана с использованием Swagger. Чтобы просмотреть документацию, выполните следующие шаги:
+
+1. Установите пакет L5-Swagger:
+
+   ```bash
+   composer require darkaonline/l5-swagger
+   ```
+
+2. Опубликуйте конфигурацию L5-Swagger:
+
+   ```bash
+   php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+   ```
+
+3. Перейдите по адресу `http://127.0.0.1:8000/api/documentation` для просмотра документации.
+
+## Примеры запросов API
+
+### Регистрация пользователя
+
+**Метод**: `POST`
+**URL**: `/api/register`
+
+**Параметры запроса**:
+
+```json
+{
+    "iin": "123456789012",
+    "phone_number": "1234567890",
+    "full_name": "John Doe",
+    "date_of_birth": "1990-01-01",
+    "residence": "123 Main St",
+    "password": "password123"
+}
+```
+
+### Аутентификация пользователя
+
+**Метод**: `POST`
+**URL**: `/api/login`
+
+**Параметры запроса**:
+
+```json
+{
+    "iin": "123456789012",
+    "password": "password123"
+}
+```
+
+### Отправка SMS
+
+**Метод**: `POST`
+**URL**: `/api/sms`
+
+### Подтверждение SMS
+
+**Метод**: `POST`
+**URL**: `/api/verify-sms`
+
+**Параметры запроса**:
+
+```json
+{
+    "sms_code": "1234"
+}
+```
+
+### Получение профиля пользователя
+
+**Метод**: `GET`
+**URL**: `/api/user/profile`
+
+**Заголовок**:
+
+```
+Authorization: Bearer <your-access-token>
+```
+
+### Обновление профиля пользователя
+
+**Метод**: `PUT`
+**URL**: `/api/user/profile`
+
+**Заголовок**:
+
+```
+Authorization: Bearer <your-access-token>
+```
+
+**Параметры запроса**:
+
+```json
+{
+    "phone_number": "0987654321",
+    "full_name": "John Smith",
+    "date_of_birth": "1991-02-02",
+    "residence": "456 Elm St"
+}
+```
+
+## Лицензия
+
+Этот проект лицензируется на условиях MIT License.
