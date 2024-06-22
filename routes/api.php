@@ -25,6 +25,8 @@ Route::post('/verify-sms', [AuthController::class, 'verifySms']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/route', [RouteController::class, 'getRoute']);
+    Route::get('/routes/{teamId}', [RouteController::class, 'getRoute']);
+    Route::put('/routes/{teamId}', [RouteController::class, 'updateRoute']);
 
     Route::get('/teams', [TeamController::class, 'index']);
     Route::post('/teams', [TeamController::class, 'store']);
