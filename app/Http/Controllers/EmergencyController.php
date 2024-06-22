@@ -18,8 +18,9 @@ class EmergencyController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'address' => 'required|string',
-            'for_whom' => 'required|string',
+            'for_whom' => 'required|boolean',
             'status' => 'required|string',
+            'driver_name' => 'nullable|string',
             'team_id' => 'nullable|exists:teams,id',
             'call_time' => 'required|date_format:Y-m-d H:i:s',
             'review' => 'nullable|string',
@@ -32,7 +33,7 @@ class EmergencyController extends Controller
 
     public function show($id)
     {
-        $emergency = Emergency::findOrFail($id);
+        $emergency = Emergency::with(['user', 'team'])->findOrFail($id);
         return response()->json($emergency);
     }
 
@@ -40,8 +41,9 @@ class EmergencyController extends Controller
     {
         $request->validate([
             'address' => 'sometimes|required|string',
-            'for_whom' => 'sometimes|required|string',
+            'for_whom' => 'sometimes|required|boolean',
             'status' => 'sometimes|required|string',
+            'driver_name' => 'nullable|string',
             'team_id' => 'nullable|exists:teams,id',
             'call_time' => 'sometimes|required|date_format:Y-m-d H:i:s',
             'review' => 'nullable|string',
