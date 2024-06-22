@@ -1,169 +1,400 @@
-
 # Ambulance API
 
-Это проект для управления системой скорой помощи. Проект предоставляет API для аутентификации пользователей, управления их профилями и других функций.
+## Описание
 
-## Технологии
-
-- PHP 8.2
-- Laravel 10.10
-- MySQL
-- Redis
-- Laravel Passport для аутентификации
-- Swagger для документации API
+Ambulance API предоставляет функциональность для управления вызовами скорой помощи, маршрутами, аутентификацией пользователей, регистрацией, верификацией SMS и управлением командами скорой помощи.
 
 ## Установка
 
 1. Клонируйте репозиторий:
 
-   ```bash
-   git clone https://github.com/yourusername/ambulance.git
-   cd ambulance
-   ```
+    ```bash
+    git clone https://github.com/ваш-пользователь/ambulance-api.git
+    cd ambulance-api
+    ```
 
 2. Установите зависимости:
 
-   ```bash
-   composer install
-   ```
+    ```bash
+    composer install
+    ```
 
 3. Скопируйте файл `.env.example` в `.env` и настройте параметры окружения:
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 4. Сгенерируйте ключ приложения:
 
-   ```bash
-   php artisan key:generate
-   ```
+    ```bash
+    php artisan key:generate
+    ```
 
-5. Запустите миграции и сиды для базы данных:
+5. Настройте базу данных в файле `.env` и выполните миграции:
 
-   ```bash
-   php artisan migrate
-   ```
+    ```bash
+    php artisan migrate
+    ```
 
-6. Установите Laravel Passport и создайте ключи:
+6. Запустите сервер разработки:
 
-   ```bash
-   php artisan passport:install
-   ```
+    ```bash
+    php artisan serve
+    ```
 
-## Запуск
+## API Эндпоинты
 
-1. Запустите локальный сервер разработки:
+### Аутентификация и управление пользователями
 
-   ```bash
-   php artisan serve
-   ```
+#### POST /api/login
 
-2. Откройте браузер и перейдите по адресу `http://127.0.0.1:8000`.
+Аутентификация пользователей (фельдшеров, водителей, пациентов).
 
-## Документация API
+- **Тело запроса:**
+    ```json
+    {
+      "email": "user@example.com",
+      "password": "password123"
+    }
+    ```
 
-Документация API создана с использованием Swagger. Чтобы просмотреть документацию, выполните следующие шаги:
+- **Ответ:**
+    ```json
+    {
+      "token": "your_token_here"
+    }
+    ```
 
-1. Установите пакет L5-Swagger:
+#### POST /api/register
 
-   ```bash
-   composer require darkaonline/l5-swagger
-   ```
+Регистрация новых пользователей.
 
-2. Опубликуйте конфигурацию L5-Swagger:
+- **Тело запроса:**
+    ```json
+    {
+      "iin": "123456789012",
+      "phone_number": "1234567890",
+      "full_name": "John Doe",
+      "date_of_birth": "1990-01-01",
+      "residence": "123 Main St",
+      "password": "password123"
+    }
+    ```
 
-   ```bash
-   php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
-   ```
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "iin": "123456789012",
+      "phone_number": "1234567890",
+      "full_name": "John Doe",
+      "date_of_birth": "1990-01-01",
+      "residence": "123 Main St",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
 
-3. Перейдите по адресу `http://127.0.0.1:8000/api/documentation` для просмотра документации.
+#### POST /api/sms
 
-## Примеры запросов API
+Получение SMS-кода.
 
-### Регистрация пользователя
+- **Тело запроса:**
+    ```json
+    {
+      "phone_number": "1234567890"
+    }
+    ```
 
-**Метод**: `POST`
-**URL**: `/api/register`
+- **Ответ:**
+    ```json
+    {
+      "message": "SMS sent successfully",
+      "code": "1234"
+    }
+    ```
 
-**Параметры запроса**:
+#### POST /api/verify-sms
 
-```json
-{
-    "iin": "123456789012",
-    "phone_number": "1234567890",
-    "full_name": "John Doe",
-    "date_of_birth": "1990-01-01",
-    "residence": "123 Main St",
-    "password": "password123"
-}
-```
+Верификация SMS-кода.
 
-### Аутентификация пользователя
+- **Тело запроса:**
+    ```json
+    {
+      "sms_code": "1234"
+    }
+    ```
 
-**Метод**: `POST`
-**URL**: `/api/login`
+- **Ответ при успешной верификации:**
+    ```json
+    {
+      "message": "SMS verified successfully"
+    }
+    ```
 
-**Параметры запроса**:
+- **Ответ при неверном коде:**
+    ```json
+    {
+      "error": "Invalid SMS code"
+    }
+    ```
 
-```json
-{
-    "iin": "123456789012",
-    "password": "password123"
-}
-```
+#### GET /api/user/profile
 
-### Отправка SMS
+Получение информации о профиле пользователя.
 
-**Метод**: `POST`
-**URL**: `/api/sms`
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "iin": "123456789012",
+      "phone_number": "1234567890",
+      "full_name": "John Doe",
+      "date_of_birth": "1990-01-01",
+      "residence": "123 Main St",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
 
-### Подтверждение SMS
+#### PUT /api/user/profile
 
-**Метод**: `POST`
-**URL**: `/api/verify-sms`
+Обновление информации о профиле пользователя.
 
-**Параметры запроса**:
+- **Тело запроса:**
+    ```json
+    {
+      "full_name": "John Doe",
+      "date_of_birth": "1990-01-01",
+      "residence": "123 Main St",
+      "phone_number": "1234567890"
+    }
+    ```
 
-```json
-{
-    "sms_code": "1234"
-}
-```
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "iin": "123456789012",
+      "phone_number": "1234567890",
+      "full_name": "John Doe",
+      "date_of_birth": "1990-01-01",
+      "residence": "123 Main St",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
 
-### Получение профиля пользователя
+### Вызовы скорой помощи
 
-**Метод**: `GET`
-**URL**: `/api/user/profile`
+#### POST /api/emergencies
 
-**Заголовок**:
+Создание нового вызова скорой помощи.
 
-```
-Authorization: Bearer <your-access-token>
-```
+- **Тело запроса:**
+    ```json
+    {
+      "user_id": 1,
+      "address": "34.052235,-118.243683",
+      "for_whom": true,
+      "status": "pending",
+      "driver_name": "John Doe",
+      "team_id": 1,
+      "call_time": "2024-06-22 10:00:00",
+      "review": null,
+      "rating": null
+    }
+    ```
 
-### Обновление профиля пользователя
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "user_id": 1,
+      "address": "34.052235,-118.243683",
+      "for_whom": true,
+      "status": "pending",
+      "driver_name": "John Doe",
+      "team_id": 1,
+      "call_time": "2024-06-22 10:00:00",
+      "review": null,
+      "rating": null,
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
 
-**Метод**: `PUT`
-**URL**: `/api/user/profile`
+#### PUT /api/emergencies/{id}
 
-**Заголовок**:
+Обновление информации о вызове скорой помощи.
 
-```
-Authorization: Bearer <your-access-token>
-```
+- **Тело запроса:**
+    ```json
+    {
+      "status": "en_route"
+    }
+    ```
 
-**Параметры запроса**:
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "user_id": 1,
+      "address": "34.052235,-118.243683",
+      "for_whom": true,
+      "status": "en_route",
+      "driver_name": "John Doe",
+      "team_id": 1,
+      "call_time": "2024-06-22 10:00:00",
+      "review": null,
+      "rating": null,
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
 
-```json
-{
-    "phone_number": "0987654321",
-    "full_name": "John Smith",
-    "date_of_birth": "1991-02-02",
-    "residence": "456 Elm St"
-}
-```
+### Маршруты
+
+#### GET /api/routes/{teamId}
+
+Получить маршрут и координаты команды.
+
+- **Ответ:**
+    ```json
+    {
+      "distance": 4468190,
+      "duration": 147058,
+      "polyline": "encoded_polyline_here",
+      "end_location": {
+        "lat": 34.0523511,
+        "lng": -118.2435701
+      },
+      "team_location": "40.712776,-74.005974"
+    }
+    ```
+
+#### PUT /api/routes/{teamId}
+
+Обновить текущие координаты команды.
+
+- **Тело запроса:**
+    ```json
+    {
+      "current_coordinates": "40.712776,-74.005974"
+    }
+    ```
+
+- **Ответ:**
+    ```json
+    {
+      "distance": 4468190,
+      "duration": 147058,
+      "polyline": "encoded_polyline_here",
+      "end_location": {
+        "lat": 34.0523511,
+        "lng": -118.2435701
+      },
+      "patient_location": "34.052235,-118.243683"
+    }
+    ```
+
+### Команды скорой помощи
+
+#### POST /api/teams
+
+Создать команду скорой помощи.
+
+- **Тело запроса:**
+    ```json
+    {
+      "car": "Ambulance Car 1",
+      "driver": "John Doe",
+      "feldsher": "Jane Doe",
+      "type": "Type A"
+    }
+    ```
+
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "car": "Ambulance Car 1",
+      "driver": "John Doe",
+      "feldsher": "Jane Doe",
+      "type": "Type A",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
+
+#### GET /api/teams
+
+Получить список команд скорой помощи.
+
+- **Ответ:**
+    ```json
+    [
+      {
+        "id": 1,
+        "car": "Ambulance Car 1",
+        "driver": "John Doe",
+        "feldsher": "Jane Doe",
+        "type": "Type A",
+        "created_at": "2024-06-22T10:00:00.000000Z",
+        "updated_at": "2024-06-22T10:00:00.000000Z"
+      }
+    ]
+    ```
+
+#### GET /api/teams/{id}
+
+Получить информацию о конкретной команде скорой помощи.
+
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "car": "Ambulance Car 1",
+      "driver": "John Doe",
+      "feldsher": "Jane Doe",
+      "type": "Type A",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
+
+#### PUT /api/teams/{id}
+
+Обновить информацию о команде скорой помощи.
+
+- **Тело запроса:**
+    ```json
+    {
+      "car": "Ambulance Car 1",
+      "driver": "John Doe",
+      "feldsher": "Jane Doe",
+      "type": "Type A"
+    }
+    ```
+
+- **Ответ:**
+    ```json
+    {
+      "id": 1,
+      "car": "Ambulance Car 1",
+      "driver": "John Doe",
+      "feldsher": "Jane Doe",
+      "type": "Type A",
+      "created_at": "2024-06-22T10:00:00.000000Z",
+      "updated_at": "2024-06-22T10:00:00.000000Z"
+    }
+    ```
+
+## Документация Swagger
+
+Документация API доступна по адресу: `/api/documentation`
 
 ## Лицензия
 
-Этот проект лицензируется на условиях MIT License.
+Этот проект лицензирован под лицензией MIT. Подробности см. в файле LICENSE.
