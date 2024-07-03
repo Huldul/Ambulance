@@ -5,15 +5,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\GoogleRoutesService;
+
 
 class Emergency extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'address', 'for_whom', 'status', 'driver_name', 'team_id', 'call_time', 'review', 'rating'
+        'user_id', 'address', 'for_whom', 'status', 'driver_name', 'team_id', 'call_time', 'review', 'rating','priority'
     ];
+    protected $appends = ['route'];
 
+    public function getRouteAttribute()
+    {
+        if ($this->team_id) {
+            $team = Team::find($this->team_id);
+            $origin = $team->current_coordinates;
+            $googleRoutesService = resolve(GoogleRoutesService::class);
+            return $googleRoutesService->getRoute($origin, $this->address, $this->team_id);
+        }
+
+        return null;
+    }
     // Связь с пользователем
     public function user()
     {

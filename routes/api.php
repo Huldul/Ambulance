@@ -40,4 +40,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/emergencies', [EmergencyController::class, 'index']);
     Route::get('/emergencies/{id}', [EmergencyController::class, 'show']);
     Route::put('/emergencies/{id}', [EmergencyController::class, 'update']);
+    Route::post('/emergencies/accept', [EmergencyController::class, 'accept']);
 });
