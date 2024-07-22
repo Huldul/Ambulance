@@ -6,21 +6,25 @@ use Illuminate\Http\Request;
 use App\Models\Emergency;
 use App\Services\GoogleRoutesService;
 use App\Models\Team;
-
+use App\Services\TeamService;
 
 
 class EmergencyController extends Controller
 {
     protected $googleRoutesService;
-    public function __construct(GoogleRoutesService $googleRoutesService)
+    protected $teamService;
+
+    public function __construct(GoogleRoutesService $googleRoutesService, TeamService $teamService)
     {
         $this->googleRoutesService = $googleRoutesService;
+        $this->teamService = $teamService;
     }
 
     public function index()
     {
         $emergencies = Emergency::all();
         return response()->json($emergencies);
+
     }
 
     public function store(Request $request)
@@ -37,9 +41,16 @@ class EmergencyController extends Controller
             'rating' => 'nullable|integer|between:1,5',
             'priority' => 'required|string|in:HIGH,MEDIUM,LOW',
         ]);
-
         $emergency = Emergency::create($request->all());
-        return response()->json($emergency, 201);
+        $team = $this->teamService->assignTeam($emergency);
+
+        if ($team) {
+            return response()->json([
+                'message' => 'Emergency created and team assigned.',
+                'emergency' => $emergency,
+                'team' => $team
+            ], 201);
+        }
     }
 
     public function show($id)
@@ -84,6 +95,9 @@ class EmergencyController extends Controller
         $emergency = Emergency::findOrFail($request->id);
         $emergency->status = 'accepted';
         $emergency->save();
+
+        // Отправляем push-уведомление пользователю
+        $this->teamService->sendPushNotification($emergency->user->fcmid, 'Emergency accepted', 'Your emergency has been accepted by a team.');
 
         return response()->json(['message' => 'Emergency status updated to accepted', 'emergency' => $emergency]);
     }

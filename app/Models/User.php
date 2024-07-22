@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 
-class User extends Authenticatable
+class User extends \TCG\Voyager\Models\User
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'iin', 'phone_number', 'full_name', 'date_of_birth', 'residence', 'password'
+        'iin', 'phone_number', 'full_name', 'date_of_birth', 'residence', 'password', 'fcmid'
     ];
 
 
@@ -43,4 +43,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function emergencies()
+    {
+        return $this->hasMany(Emergency::class);
+    }
 }
